@@ -25,7 +25,6 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private:
-    GLfloat offset;
     RRT *rrt;
 };
 

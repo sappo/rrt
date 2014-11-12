@@ -18,9 +18,11 @@ public:
     ~RRT();
 
     void buildRRT (QPointF qinit, int steps, qreal delta);
+    void stepRRT (int steps, qreal delta);
     QPointF randomConf (int max);
     QPointF nearestVertex (QPointF rand);
     QPointF newConf (QPointF qnear, QPointF qrand, qreal delta);
+
 
     zgraph_t * graph();
 

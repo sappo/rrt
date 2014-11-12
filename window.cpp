@@ -12,8 +12,6 @@ Window::Window(QWidget *parent) :
     glWidget->resize(300, 300);
     QGridLayout *gridLayout = new QGridLayout();
 
-    QPushButton step("Step", this);
-    connect(step, step.clicked(),)
 
     gridLayout->addWidget(new QPushButton(this), 1, 1);
     gridLayout->addWidget(new QPushButton(this), 1, 2);

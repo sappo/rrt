@@ -3,11 +3,10 @@
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-    startTimer(16000);
+    startTimer(16);
     setWindowTitle(tr("Sample Buffers"));
-    offset = 0;
     rrt = new RRT();
-    rrt->buildRRT(QPointF(150, 150), 200, 5.0);
+    rrt->buildRRT(QPointF(150, 150), 1, 5.0);
 }
 
 void GLWidget::initializeGL()
@@ -41,7 +40,6 @@ void GLWidget::paintGL()
 {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0,300,300,0,0.0f,100.0f);
@@ -49,7 +47,7 @@ void GLWidget::paintGL()
     glLoadIdentity();
 
     glPushMatrix();
-    glTranslatef(offset, 0.0f, 0.0f);
+    //  glTranslatef(offset, 0.0f, 0.0f);
 
     glPointSize(7.0f);
     glBegin(GL_POINTS);
@@ -82,15 +80,20 @@ void GLWidget::paintGL()
             vert = zgraph_next(graph);
         }
     glEnd();
+
+    glLineWidth(5.0f);
+    glBegin(GL_LINES);
+        glColor3f(0.0, 1.0, 0.0);
+        glVertex2d(100, 100);
+        glVertex2d(100, 250);
+    glEnd();
     glPopMatrix();
 
     glFlush();
-
-    qDebug () << "paintGL";
 }
 
 void GLWidget::timerEvent(QTimerEvent *)
 {
-    offset += 0.1;
+    rrt->stepRRT(1, 5.0);
     update();
 }

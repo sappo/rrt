@@ -28,10 +28,21 @@ void RRT::buildRRT(QPointF qinit, int steps, qreal delta)
     zgraph_add_vertex (_graph, pointStr(qinit), qinit_attributes);
 
     //  Enter start into graph
+    stepRRT(steps, delta);
+}
+
+void RRT::stepRRT (int steps, qreal delta)
+{
     for (int i = 0; i < steps; i++) {
         QPointF qrand = randomConf(300);
         QPointF qnear = nearestVertex(qrand);
         QPointF qnew =  newConf(qnear, qrand, delta);
+
+        QLineF line1(100, 100, 100, 250);
+        QLineF edge(qnear, qrand);
+        QLineF::IntersectType  intersect = edge.intersect(line1, NULL);
+        if (intersect == QLineF::IntersectType::UnboundedIntersection) {
+
 
         // Add vertex
         zhash_t *qattr = zhash_new ();
@@ -41,6 +52,8 @@ void RRT::buildRRT(QPointF qinit, int steps, qreal delta)
         zhash_t *eattr = zhash_new ();
         zhash_insert (eattr, "d", &delta);
         zgraph_add_edge(_graph, pointStr(qnear), pointStr(qnew), eattr);
+
+        }
     }
 }
 
