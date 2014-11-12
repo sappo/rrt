@@ -26,7 +26,7 @@ HEADERS  += window.h \
 
 FORMS    += window.ui
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS +=
 
 unix:!macx: LIBS += -L/usr/local/lib/ -lczmq
 

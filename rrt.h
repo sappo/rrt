@@ -14,7 +14,7 @@ class RRT : public QObject
 {
     Q_OBJECT
 public:
-    explicit RRT(QObject *parent = 0);
+    explicit RRT(QList<QLineF> objects, QObject *parent = 0);
     ~RRT();
 
     void buildRRT (QPointF qinit, int steps, qreal delta);
@@ -28,6 +28,7 @@ public:
 
 private:
     zgraph_t *_graph;
+    QList<QLineF> _objects;
 
 signals:
 

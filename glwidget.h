@@ -4,6 +4,8 @@
 //  Qt
 #include <QDebug>
 #include <QtOpenGL>
+#include <QList>
+#include <QLineF>
 //  freeglut
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -12,6 +14,12 @@
 #include <math.h>
 #include <iostream>
 #include "rrt.h"
+//  opencv
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+using namespace cv;
 
 class GLWidget : public QGLWidget
 {
@@ -26,6 +34,7 @@ protected:
 
 private:
     RRT *rrt;
+    QList<QLineF> objects;
 };
 
 #endif // GLWIDGET_H

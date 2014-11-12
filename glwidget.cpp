@@ -3,9 +3,60 @@
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-    startTimer(16);
+    startTimer(1);
     setWindowTitle(tr("Sample Buffers"));
-    rrt = new RRT();
+
+    Mat image;
+    image = imread("/home/ksapper/Workspace/github/build-QtCV-Desktop_Qt_5_3_GCC_64bit-Debug/cage.png", CV_LOAD_IMAGE_COLOR);
+    if (!image.data)                              // Check for invalid input
+    {
+        qDebug() <<  "Could not open or find the image";
+        return;
+    }
+
+    namedWindow("Map", WINDOW_AUTOSIZE );   // Create a window for display.
+    imshow("Map", image);
+
+    // Horizontal Lines
+    for(int y=0;y<image.rows;y++) {
+        bool isLine = false;
+        QPointF first;
+        for(int x=0;x<image.cols;x++) {
+             Vec3b color = image.at<Vec3b>(Point(x,y));
+             if (color.val[0] == 0 && color.val[1] == 0 && color.val[2] == 0) {
+                if (!isLine) {
+                   isLine = true;
+                   first = QPointF(x, y);
+                }
+
+             }
+             else if(isLine) {
+                isLine = false;
+                objects.append(QLineF(first, QPoint(x-1, y)));
+             }
+          }
+    }
+    // Vertical Lines
+    for(int x = 0; x < image.rows; x++) {
+        bool isLine = false;
+        QPointF first;
+        for(int y = 0; y < image.cols; y++) {
+             Vec3b color = image.at<Vec3b>(Point(x,y));
+             if (color.val[0] == 0 && color.val[1] == 0 && color.val[2] == 0) {
+                if (!isLine) {
+                   isLine = true;
+                   first = QPointF(x, y);
+                }
+
+             }
+             else if(isLine) {
+                isLine = false;
+                objects.append(QLineF(first, QPoint(x, y-1)));
+             }
+          }
+    }
+
+    rrt = new RRT(objects);
     rrt->buildRRT(QPointF(150, 150), 1, 5.0);
 }
 
@@ -81,11 +132,15 @@ void GLWidget::paintGL()
         }
     glEnd();
 
-    glLineWidth(5.0f);
+    //  Draw objects
+    glPointSize(1.0f);
     glBegin(GL_LINES);
         glColor3f(0.0, 1.0, 0.0);
-        glVertex2d(100, 100);
-        glVertex2d(100, 250);
+        QLineF obj;
+        foreach (obj, objects) {
+           glVertex2d(obj.x1(), obj.y1());
+           glVertex2d(obj.x2(), obj.y2());
+        }
     glEnd();
     glPopMatrix();
 

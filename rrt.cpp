@@ -1,9 +1,10 @@
 #include "rrt.h"
 
-RRT::RRT(QObject *parent) :
+RRT::RRT(QList<QLineF> objects, QObject *parent) :
     QObject(parent)
 {
     _graph = zgraph_new ();
+    _objects = objects;
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
 }
@@ -38,22 +39,27 @@ void RRT::stepRRT (int steps, qreal delta)
         QPointF qnear = nearestVertex(qrand);
         QPointF qnew =  newConf(qnear, qrand, delta);
 
-        QLineF line1(100, 100, 100, 250);
-        QLineF edge(qnear, qrand);
-        QLineF::IntersectType  intersect = edge.intersect(line1, NULL);
-        if (intersect == QLineF::IntersectType::UnboundedIntersection) {
-
-
-        // Add vertex
-        zhash_t *qattr = zhash_new ();
-        zhash_insert (qattr, "p", new QPointF(qnew.rx(), qnew.ry()));
-        zgraph_add_vertex (_graph, pointStr(qnew), qattr);
-        // Add edge
-        zhash_t *eattr = zhash_new ();
-        zhash_insert (eattr, "d", &delta);
-        zgraph_add_edge(_graph, pointStr(qnear), pointStr(qnew), eattr);
-
+        QLineF edge(qnear, qnew);
+        QLineF obj;
+        QLineF::IntersectType intersection = QLineF::UnboundedIntersection;
+        foreach (obj, _objects) {
+            intersection = edge.intersect(obj, NULL);
+            if (intersection == QLineF::BoundedIntersection) {
+               break;
+            }
         }
+
+        if (intersection == QLineF::UnboundedIntersection) {
+           // Add vertex
+           zhash_t *qattr = zhash_new ();
+           zhash_insert (qattr, "p", new QPointF(qnew.rx(), qnew.ry()));
+           zgraph_add_vertex (_graph, pointStr(qnew), qattr);
+           // Add edge
+           zhash_t *eattr = zhash_new ();
+           zhash_insert (eattr, "d", &delta);
+           zgraph_add_edge(_graph, pointStr(qnear), pointStr(qnew), eattr);
+        }
+
     }
 }
 
