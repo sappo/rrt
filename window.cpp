@@ -1,4 +1,5 @@
 #include "window.h"
+#include <QStatusBar>
 #include "ui_window.h"
 
 Window::Window(QWidget *parent) :
@@ -9,9 +10,8 @@ Window::Window(QWidget *parent) :
     setWindowTitle(tr("Robotik Projekt - RRT"));
 
     glWidget = new GLWidget(this);
-    glWidget->resize(300, 300);
+    glWidget->resize(1000, 1000);
     QGridLayout *gridLayout = new QGridLayout();
-
 
     gridLayout->addWidget(new QPushButton(this), 1, 1);
     gridLayout->addWidget(new QPushButton(this), 1, 2);
@@ -23,4 +23,9 @@ Window::Window(QWidget *parent) :
 Window::~Window()
 {
     delete ui;
+}
+
+void Window::printStatus(QString status)
+{
+    statusBar()->showMessage(status);
 }

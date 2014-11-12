@@ -3,19 +3,19 @@
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-    startTimer(1);
+    startTimer(16);
     setWindowTitle(tr("Sample Buffers"));
 
     Mat image;
-    image = imread("/home/ksapper/Workspace/github/build-QtCV-Desktop_Qt_5_3_GCC_64bit-Debug/cage.png", CV_LOAD_IMAGE_COLOR);
+    image = imread("../rrt_project/cage.png", CV_LOAD_IMAGE_COLOR);
     if (!image.data)                              // Check for invalid input
     {
         qDebug() <<  "Could not open or find the image";
         return;
     }
 
-    namedWindow("Map", WINDOW_AUTOSIZE );   // Create a window for display.
-    imshow("Map", image);
+    //namedWindow("Map", WINDOW_AUTOSIZE );   // Create a window for display.
+    //imshow("Map", image);
 
     // Horizontal Lines
     for(int y=0;y<image.rows;y++) {
@@ -98,8 +98,26 @@ void GLWidget::paintGL()
     glLoadIdentity();
 
     glPushMatrix();
-    //  glTranslatef(offset, 0.0f, 0.0f);
 
+    //  Draw objects
+    glLineWidth(4.0f);
+    glBegin(GL_LINES);
+        glColor3f(0.0, 1.0, 0.0);
+        QLineF obj;
+        foreach (obj, objects) {
+           glVertex2d(obj.x1(), obj.y1());
+           glVertex2d(obj.x2(), obj.y2());
+        }
+    glEnd();
+
+    //  Target
+    glPointSize(14.0f);
+    glBegin(GL_POINTS);
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex2d(20, 20);
+    glEnd();
+
+    //  RRT-vertices
     glPointSize(7.0f);
     glBegin(GL_POINTS);
         glColor3f(1.0, 0.0, 0.0);
@@ -113,6 +131,7 @@ void GLWidget::paintGL()
         }
     glEnd();
 
+    //  RRT-edges
     glLineWidth(1.0f);
     glBegin(GL_LINES);
         graph = rrt->graph();
@@ -132,16 +151,6 @@ void GLWidget::paintGL()
         }
     glEnd();
 
-    //  Draw objects
-    glPointSize(1.0f);
-    glBegin(GL_LINES);
-        glColor3f(0.0, 1.0, 0.0);
-        QLineF obj;
-        foreach (obj, objects) {
-           glVertex2d(obj.x1(), obj.y1());
-           glVertex2d(obj.x2(), obj.y2());
-        }
-    glEnd();
     glPopMatrix();
 
     glFlush();
@@ -149,6 +158,8 @@ void GLWidget::paintGL()
 
 void GLWidget::timerEvent(QTimerEvent *)
 {
-    rrt->stepRRT(1, 5.0);
-    update();
+    if (!rrt->isDone()) {
+        rrt->stepRRT(100, 5.0);
+        update();
+    }
 }

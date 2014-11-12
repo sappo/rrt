@@ -1,10 +1,12 @@
 #include "rrt.h"
+#include <QRectF>
 
 RRT::RRT(QList<QLineF> objects, QObject *parent) :
     QObject(parent)
 {
     _graph = zgraph_new ();
     _objects = objects;
+    _done = false;
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
 }
@@ -39,6 +41,7 @@ void RRT::stepRRT (int steps, qreal delta)
         QPointF qnear = nearestVertex(qrand);
         QPointF qnew =  newConf(qnear, qrand, delta);
 
+        // Collision dectection
         QLineF edge(qnear, qnew);
         QLineF obj;
         QLineF::IntersectType intersection = QLineF::UnboundedIntersection;
@@ -58,6 +61,24 @@ void RRT::stepRRT (int steps, qreal delta)
            zhash_t *eattr = zhash_new ();
            zhash_insert (eattr, "d", &delta);
            zgraph_add_edge(_graph, pointStr(qnear), pointStr(qnew), eattr);
+        }
+
+
+        // Target reached
+        int tx = round(qnew.rx());
+        int ty = round(qnew.ry());
+
+        if (tx > 20-delta && tx < 20+delta && ty > 20-delta && ty < 20+delta){
+            _done = true;
+            QPointF qtarget(20, 20);
+            // Add vertex
+            zhash_t *qattr = zhash_new ();
+            zhash_insert (qattr, "p", new QPointF(qtarget.rx(), qtarget.ry()));
+            zgraph_add_vertex (_graph, pointStr(qtarget), qattr);
+            // Add edge
+            zhash_t *eattr = zhash_new ();
+            zhash_insert (eattr, "d", &delta);
+            zgraph_add_edge(_graph, pointStr(qnew), pointStr(qtarget), eattr);
         }
 
     }
@@ -100,6 +121,12 @@ QPointF RRT::newConf (QPointF qnear, QPointF qrand, qreal delta)
     return edge.p2();
 }
 
-zgraph_t * RRT::graph() {
+zgraph_t * RRT::graph()
+{
     return _graph;
+}
+
+bool RRT::isDone()
+{
+    return _done;
 }

@@ -24,6 +24,9 @@ public:
 private:
     Ui::Window *ui;
     GLWidget *glWidget;
+
+public slots:
+    void printStatus(QString status);
 };
 
 #endif // WINDOW_H

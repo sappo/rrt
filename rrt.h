@@ -25,10 +25,12 @@ public:
 
 
     zgraph_t * graph();
+    bool isDone();
 
 private:
     zgraph_t *_graph;
     QList<QLineF> _objects;
+    bool _done;
 
 signals:
 
